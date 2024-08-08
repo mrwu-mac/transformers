@@ -1268,6 +1268,8 @@ class InstructBlipForConditionalGeneration(InstructBlipPreTrainedModel):
         # Initialize weights and apply final processing
         self.post_init()
 
+        self.vprompt_cur = None
+
     def get_input_embeddings(self):
         return self.language_model.get_input_embeddings()
 
@@ -1506,8 +1508,9 @@ class InstructBlipForConditionalGeneration(InstructBlipPreTrainedModel):
             # print(image_embeds.shape)
         
         
-        image_embeds = image_embeds + self.vprompt_cur.to(image_embeds.dtype).to(image_embeds.device)
-        # image_embeds = image_embeds + self.visual_prompt.to(image_embeds.dtype).to(image_embeds.device)
+        if self.vprompt_cur is not None:
+            image_embeds = image_embeds + self.vprompt_cur.to(image_embeds.dtype).to(image_embeds.device)
+     
 
         image_attention_mask = torch.ones(image_embeds.size()[:-1], dtype=torch.long, device=image_embeds.device)
         query_tokens = self.query_tokens.expand(image_embeds.shape[0], -1, -1)
